@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling>=1.24.2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trestle-transport"
+version = "0.1.0"
+description = "Trestle WebSocket/HTTP transport adapter and JSON framing helpers."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "RockBridge Trestle" }
+]
+keywords = ["trestle", "transport", "websocket", "home-assistant"]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "aiohttp>=3.9.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["trestle_transport"]
