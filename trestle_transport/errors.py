@@ -1,25 +1,25 @@
-"""Client error types for Rocky Panel device interactions."""
+"""Client error types for RockBridge Trestle device interactions."""
 
 from __future__ import annotations
 
 
-class RockyPanelClientError(Exception):
-    """Base error for Rocky Panel client failures."""
+class TrestleClientError(Exception):
+    """Base error for RockBridge Trestle client failures."""
 
 
-class RockyPanelTimeout(RockyPanelClientError):
+class TrestleTimeout(TrestleClientError):
     """Timeout while communicating with the device."""
 
 
-class RockyPanelConnectionError(RockyPanelClientError):
+class TrestleConnectionError(TrestleClientError):
     """Network connection to the device failed."""
 
 
-class RockyPanelHandshakeError(RockyPanelClientError):
+class TrestleHandshakeError(TrestleClientError):
     """WebSocket handshake failed."""
 
 
-class RockyPanelResponseError(RockyPanelClientError):
+class TrestleResponseError(TrestleClientError):
     """HTTP response error from the device."""
 
     def __init__(self, status: int, message: str) -> None:

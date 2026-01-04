@@ -1,18 +1,18 @@
-"""HTTP client for Rocky Panel device endpoints."""
+"""HTTP client for RockBridge Trestle device endpoints."""
 
 from __future__ import annotations
 
 import aiohttp
 
 from .errors import (
-    RockyPanelConnectionError,
-    RockyPanelResponseError,
-    RockyPanelTimeout,
+    TrestleConnectionError,
+    TrestleResponseError,
+    TrestleTimeout,
 )
 
 
-class RockyPanelHttpClient:
-    """HTTP client wrapper for Rocky Panel device endpoints."""
+class TrestleHttpClient:
+    """HTTP client wrapper for RockBridge Trestle device endpoints."""
 
     def __init__(
         self,
@@ -51,9 +51,9 @@ class RockyPanelHttpClient:
                 data = await resp.json()
                 return data.get("id") or data.get("unique_id") or data.get("device_id")
         except TimeoutError as err:
-            raise RockyPanelTimeout("Device info request timed out") from err
+            raise TrestleTimeout("Device info request timed out") from err
         except aiohttp.ClientError as err:
-            raise RockyPanelConnectionError("Failed to fetch device info") from err
+            raise TrestleConnectionError("Failed to fetch device info") from err
 
     async def send_pairing_secret(self, secret: str) -> None:
         """Send pairing secret to /pair endpoint."""
@@ -65,13 +65,13 @@ class RockyPanelHttpClient:
                 timeout=aiohttp.ClientTimeout(total=20),
             ) as resp:
                 if resp.status != 200:
-                    raise RockyPanelResponseError(
+                    raise TrestleResponseError(
                         resp.status, "Pairing failed with non-200 response"
                     )
         except TimeoutError as err:
-            raise RockyPanelTimeout("Pairing request timed out") from err
+            raise TrestleTimeout("Pairing request timed out") from err
         except aiohttp.ClientError as err:
-            raise RockyPanelConnectionError("Pairing request failed") from err
+            raise TrestleConnectionError("Pairing request failed") from err
 
     async def unpair(self, secret: str) -> tuple[int, str]:
         """Unpair the device by calling /unpair endpoint."""
@@ -85,9 +85,9 @@ class RockyPanelHttpClient:
                 body = await resp.text()
                 return resp.status, body
         except TimeoutError as err:
-            raise RockyPanelTimeout("Unpair request timed out") from err
+            raise TrestleTimeout("Unpair request timed out") from err
         except aiohttp.ClientError as err:
-            raise RockyPanelConnectionError("Unpair request failed") from err
+            raise TrestleConnectionError("Unpair request failed") from err
 
     async def reset_device(self, *, raise_on_error: bool = True) -> int:
         """Trigger device reset via /reset endpoint."""
@@ -98,14 +98,14 @@ class RockyPanelHttpClient:
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
                 if raise_on_error and resp.status != 200:
-                    raise RockyPanelResponseError(
+                    raise TrestleResponseError(
                         resp.status, "Reset request failed with non-200 response"
                     )
                 return resp.status
         except TimeoutError as err:
-            raise RockyPanelTimeout("Reset request timed out") from err
+            raise TrestleTimeout("Reset request timed out") from err
         except aiohttp.ClientError as err:
-            raise RockyPanelConnectionError("Reset request failed") from err
+            raise TrestleConnectionError("Reset request failed") from err
 
     async def fetch_screenshot(self, secret: str | None) -> tuple[bytes, str] | None:
         """Fetch device screenshot from /api/screenshot endpoint."""
@@ -123,6 +123,6 @@ class RockyPanelHttpClient:
                 content_type = resp.headers.get("Content-Type", "image/png")
                 return image_data, content_type
         except TimeoutError as err:
-            raise RockyPanelTimeout("Screenshot request timed out") from err
+            raise TrestleTimeout("Screenshot request timed out") from err
         except aiohttp.ClientError as err:
-            raise RockyPanelConnectionError("Screenshot request failed") from err
+            raise TrestleConnectionError("Screenshot request failed") from err

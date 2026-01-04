@@ -1,41 +1,54 @@
-"""WebSocket helpers for Rocky Panel device transport."""
+"""WebSocket helpers for RockBridge Trestle device transport."""
 
 from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING
 
-import aiohttp
+import websockets
+from websockets.asyncio.client import ClientConnection
+from websockets.exceptions import (
+    InvalidHandshake,
+    InvalidURI,
+    WebSocketException,
+)
 
 from .errors import (
-    RockyPanelConnectionError,
-    RockyPanelHandshakeError,
-    RockyPanelTimeout,
+    TrestleConnectionError,
+    TrestleHandshakeError,
+    TrestleTimeout,
 )
+
+if TYPE_CHECKING:
+    pass
 
 
 async def connect_websocket(
-    session: aiohttp.ClientSession,
     host: str,
     port: int,
     *,
-    heartbeat: int = 30,
+    ping_interval: int | None = 20,
     timeout: float = 15.0,
-) -> aiohttp.ClientWebSocketResponse:
-    """Connect to the Rocky Panel WebSocket endpoint."""
+) -> ClientConnection:
+    """Connect to the RockBridge Trestle WebSocket endpoint.
+    
+    Uses the websockets library which properly implements RFC 6455 frame masking.
+    All client-to-server frames are automatically masked per the standard.
+    """
     ws_url = f"ws://{host}:{port}/ws"
     try:
         return await asyncio.wait_for(
-            session.ws_connect(
+            websockets.connect(
                 ws_url,
-                heartbeat=heartbeat,
-                compress=0,
-                max_msg_size=0,
+                ping_interval=ping_interval,
+                close_timeout=5,
+                max_size=None,
             ),
             timeout=timeout,
         )
     except TimeoutError as err:
-        raise RockyPanelTimeout("WebSocket connection timed out") from err
-    except aiohttp.WSServerHandshakeError as err:
-        raise RockyPanelHandshakeError("WebSocket handshake failed") from err
-    except aiohttp.ClientConnectorError as err:
-        raise RockyPanelConnectionError("WebSocket connection failed") from err
+        raise TrestleTimeout("WebSocket connection timed out") from err
+    except (InvalidHandshake, InvalidURI) as err:
+        raise TrestleHandshakeError("WebSocket handshake failed") from err
+    except (OSError, WebSocketException) as err:
+        raise TrestleConnectionError("WebSocket connection failed") from err

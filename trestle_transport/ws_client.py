@@ -1,4 +1,4 @@
-"""WebSocket client wrapper for Rocky Panel."""
+"""WebSocket client wrapper for RockBridge Trestle."""
 
 from __future__ import annotations
 
@@ -7,16 +7,17 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-import aiohttp
+from websockets.asyncio.client import ClientConnection
+from websockets.exceptions import ConnectionClosed
 
-from .errors import RockyPanelClientError, RockyPanelConnectionError
+from .errors import TrestleClientError, TrestleConnectionError
 from .ws import connect_websocket
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
 
-class RockyPanelWsMessageType(Enum):
+class TrestleWsMessageType(Enum):
     """Normalized WebSocket message types."""
 
     TEXT = "text"
@@ -25,34 +26,32 @@ class RockyPanelWsMessageType(Enum):
 
 
 @dataclass(frozen=True)
-class RockyPanelWsMessage:
+class TrestleWsMessage:
     """Normalized WebSocket message payload."""
 
-    type: RockyPanelWsMessageType
+    type: TrestleWsMessageType
     data: str | dict[str, Any] | None = None
 
 
-class RockyPanelWsClient:
-    """Wrapper around aiohttp websocket for Rocky Panel."""
+class TrestleWsClient:
+    """Wrapper around websockets library for RockBridge Trestle."""
 
     def __init__(self) -> None:
-        self._ws: aiohttp.ClientWebSocketResponse | None = None
+        self._ws: ClientConnection | None = None
 
     async def connect(
         self,
-        session: aiohttp.ClientSession,
         host: str,
         port: int,
         *,
-        heartbeat: int = 30,
+        ping_interval: int = 20,
         timeout: float = 15.0,
     ) -> None:
         """Connect to the device websocket."""
         self._ws = await connect_websocket(
-            session,
             host,
             port,
-            heartbeat=heartbeat,
+            ping_interval=ping_interval,
             timeout=timeout,
         )
 
@@ -64,36 +63,39 @@ class RockyPanelWsClient:
     async def send_json(self, payload: dict[str, Any]) -> None:
         """Send a JSON payload to the websocket."""
         if self._ws is None:
-            raise RockyPanelConnectionError("WebSocket is not connected")
-        await self._ws.send_json(payload)
+            raise TrestleConnectionError("WebSocket is not connected")
+        await self._ws.send(json.dumps(payload))
 
-    def __aiter__(self) -> AsyncIterator[RockyPanelWsMessage]:
+    def __aiter__(self) -> AsyncIterator[TrestleWsMessage]:
         if self._ws is None:
-            raise RockyPanelConnectionError("WebSocket is not connected")
+            raise TrestleConnectionError("WebSocket is not connected")
         return self._iter_messages()
 
-    async def _iter_messages(self) -> AsyncIterator[RockyPanelWsMessage]:
+    async def _iter_messages(self) -> AsyncIterator[TrestleWsMessage]:
         if self._ws is None:
-            raise RockyPanelConnectionError("WebSocket is not connected")
+            raise TrestleConnectionError("WebSocket is not connected")
 
-        async for msg in self._ws:
-            if msg.type == aiohttp.WSMsgType.TEXT:
-                yield RockyPanelWsMessage(
-                    type=RockyPanelWsMessageType.TEXT,
-                    data=msg.data,
-                )
-            elif msg.type == aiohttp.WSMsgType.CLOSED:
-                yield RockyPanelWsMessage(type=RockyPanelWsMessageType.CLOSED)
-            elif msg.type == aiohttp.WSMsgType.ERROR:
-                yield RockyPanelWsMessage(type=RockyPanelWsMessageType.ERROR)
-            else:
-                continue
+        try:
+            async for msg in self._ws:
+                # websockets library returns strings for text frames
+                if isinstance(msg, str):
+                    yield TrestleWsMessage(
+                        type=TrestleWsMessageType.TEXT,
+                        data=msg,
+                    )
+                elif isinstance(msg, bytes):
+                    # Binary frames - we don't expect these, skip
+                    continue
+        except ConnectionClosed:
+            yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
+        except Exception:
+            yield TrestleWsMessage(type=TrestleWsMessageType.ERROR)
 
     @staticmethod
-    def decode_json(message: RockyPanelWsMessage) -> dict[str, Any]:
+    def decode_json(message: TrestleWsMessage) -> dict[str, Any]:
         """Decode a TEXT message payload into JSON."""
-        if message.type is not RockyPanelWsMessageType.TEXT:
-            raise RockyPanelClientError("Only TEXT messages can be decoded")
+        if message.type is not TrestleWsMessageType.TEXT:
+            raise TrestleClientError("Only TEXT messages can be decoded")
         if isinstance(message.data, dict):
             return message.data
         if not isinstance(message.data, str):

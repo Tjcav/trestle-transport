@@ -1,27 +1,27 @@
 """Trestle transport adapter package."""
 
 from .errors import (
-    RockyPanelClientError,
-    RockyPanelConnectionError,
-    RockyPanelHandshakeError,
-    RockyPanelResponseError,
-    RockyPanelTimeout,
+    TrestleClientError,
+    TrestleConnectionError,
+    TrestleHandshakeError,
+    TrestleResponseError,
+    TrestleTimeout,
 )
-from .http import RockyPanelHttpClient
+from .http import TrestleHttpClient
 from .protocol import build_envelope
 from .ws import connect_websocket
-from .ws_client import RockyPanelWsClient, RockyPanelWsMessage, RockyPanelWsMessageType
+from .ws_client import TrestleWsClient, TrestleWsMessage, TrestleWsMessageType
 
 __all__ = [
-    "RockyPanelClientError",
-    "RockyPanelConnectionError",
-    "RockyPanelHandshakeError",
-    "RockyPanelHttpClient",
-    "RockyPanelResponseError",
-    "RockyPanelTimeout",
-    "RockyPanelWsClient",
-    "RockyPanelWsMessage",
-    "RockyPanelWsMessageType",
+    "TrestleClientError",
+    "TrestleConnectionError",
+    "TrestleHandshakeError",
+    "TrestleHttpClient",
+    "TrestleResponseError",
+    "TrestleTimeout",
+    "TrestleWsClient",
+    "TrestleWsMessage",
+    "TrestleWsMessageType",
     "build_envelope",
     "connect_websocket",
 ]

@@ -1,4 +1,4 @@
-"""Protocol helpers for Rocky Panel transport frames."""
+"""Protocol helpers for RockBridge Trestle transport frames."""
 
 from __future__ import annotations
 

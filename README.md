@@ -16,5 +16,5 @@ pip install git+ssh://git@github.com/tjcav/trestle-transport.git@main
 ## Usage
 
 ```python
-from trestle_transport import RockyPanelHttpClient, RockyPanelWsClient
+from trestle_transport import TrestleHttpClient, TrestleWsClient
 ```
