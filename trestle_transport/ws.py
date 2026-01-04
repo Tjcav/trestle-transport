@@ -31,7 +31,7 @@ async def connect_websocket(
     timeout: float = 15.0,
 ) -> ClientConnection:
     """Connect to the RockBridge Trestle WebSocket endpoint.
-    
+
     Uses the websockets library which properly implements RFC 6455 frame masking.
     All client-to-server frames are automatically masked per the standard.
     """
