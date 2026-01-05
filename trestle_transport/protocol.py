@@ -27,5 +27,7 @@ def build_envelope(
         "msg_id": msg_id or str(uuid.uuid4()),
         "device_id": device_id,
         "ts": int(time.time() * 1000),
+        "encoding": "json",
+        "compression": "none",
         "body": body,
     }

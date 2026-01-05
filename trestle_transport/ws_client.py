@@ -77,14 +77,43 @@ class TrestleWsClient:
 
         try:
             async for msg in self._ws:
-                # websockets library returns strings for text frames
                 if isinstance(msg, str):
                     yield TrestleWsMessage(
                         type=TrestleWsMessageType.TEXT,
                         data=msg,
                     )
-                elif isinstance(msg, bytes):
-                    # Binary frames - we don't expect these, skip
+                    continue
+
+                if isinstance(msg, bytes):
+                    continue
+
+                frame_type = getattr(msg, "type", None)
+                frame_data = getattr(msg, "data", None)
+                if frame_type is None:
+                    continue
+
+                # Lazy import to avoid hard dependency on aiohttp at runtime
+                try:
+                    from aiohttp import WSMsgType  # type: ignore
+                except Exception:  # pragma: no cover - fallback when aiohttp missing
+                    WSMsgType = None  # type: ignore
+
+                if WSMsgType is not None and frame_type == WSMsgType.TEXT:
+                    yield TrestleWsMessage(
+                        type=TrestleWsMessageType.TEXT,
+                        data=frame_data,
+                    )
+                    continue
+
+                if WSMsgType is not None and frame_type in {
+                    WSMsgType.CLOSED,
+                    WSMsgType.CLOSE,
+                }:
+                    yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
+                    continue
+
+                if WSMsgType is not None and frame_type == WSMsgType.ERROR:
+                    yield TrestleWsMessage(type=TrestleWsMessageType.ERROR)
                     continue
         except ConnectionClosed:
             yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
