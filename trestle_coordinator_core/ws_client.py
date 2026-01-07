@@ -1,4 +1,6 @@
-"""WebSocket client wrapper for RockBridge Trestle."""
+"""WebSocket client wrapper for RockBridge Trestle.
+
+"""
 
 from __future__ import annotations
 

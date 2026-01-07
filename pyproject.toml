@@ -3,16 +3,16 @@ requires = ["hatchling>=1.24.2"]
 build-backend = "hatchling.build"
 
 [project]
-name = "trestle-transport"
+name = "trestle-coordinator-core"
 version = "0.1.0"
-description = "Trestle WebSocket/HTTP transport adapter and JSON framing helpers."
+description = "Shared coordinator core providing transport, protocol helpers, and canonical envelope tooling."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [
   { name = "RockBridge Trestle" }
 ]
-keywords = ["trestle", "transport", "websocket", "home-assistant"]
+keywords = ["trestle", "coordinator", "transport", "websocket", "home-assistant"]
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Python :: 3",
@@ -24,4 +24,4 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["trestle_transport"]
+packages = ["trestle_coordinator_core"]

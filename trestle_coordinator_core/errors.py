@@ -1,4 +1,7 @@
-"""Client error types for RockBridge Trestle device interactions."""
+"""Client error types for RockBridge Trestle device interactions.
+
+Owned by the Trestle Coordinator Core team.
+"""
 
 from __future__ import annotations
 
