@@ -8,7 +8,8 @@ from __future__ import annotations
 from datetime import datetime
 import time
 import uuid
-from typing import Any, Iterable
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 
 def build_envelope(
@@ -94,3 +95,42 @@ def parse_auth_ok(message: dict[str, Any]) -> tuple[int, ...]:
     if not isinstance(versions, Iterable) or isinstance(versions, (str, bytes)):
         raise ValueError("coordinator_protocol_versions must be an iterable")
     return _normalize_protocol_versions(versions)
+
+
+def build_auth_ok(
+    *,
+    device_id: str,
+    coordinator_versions: Sequence[int],
+    msg_id: str | None = None,
+    timestamp_ms: int | None = None,
+) -> dict[str, Any]:
+    """Construct an auth_ok frame declaring coordinator protocol versions."""
+
+    normalized = _normalize_protocol_versions(coordinator_versions)
+    return build_envelope(
+        device_id=device_id,
+        msg_type="auth_ok",
+        msg_id=msg_id,
+        timestamp_ms=timestamp_ms,
+        body={"coordinator_protocol_versions": list(normalized)},
+    )
+
+
+def build_auth_invalid(
+    *,
+    device_id: str,
+    message: str,
+    msg_id: str | None = None,
+    timestamp_ms: int | None = None,
+) -> dict[str, Any]:
+    """Construct an auth_invalid frame notifying the device of failure."""
+
+    if not message:
+        raise ValueError("message is required for auth_invalid frames")
+    return build_envelope(
+        device_id=device_id,
+        msg_type="auth_invalid",
+        msg_id=msg_id,
+        timestamp_ms=timestamp_ms,
+        body={"message": message},
+    )

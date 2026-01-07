@@ -11,7 +11,13 @@ from .errors import (
     TrestleTimeout,
 )
 from .http import TrestleHttpClient
-from .protocol import build_envelope, build_time_body, parse_auth_ok
+from .protocol import (
+    build_auth_invalid,
+    build_auth_ok,
+    build_envelope,
+    build_time_body,
+    parse_auth_ok,
+)
 from .ws import connect_websocket
 from .ws_client import TrestleWsClient, TrestleWsMessage, TrestleWsMessageType
 
@@ -28,6 +34,8 @@ __all__ = [
     "TrestleWsClient",
     "TrestleWsMessage",
     "TrestleWsMessageType",
+    "build_auth_invalid",
+    "build_auth_ok",
     "build_envelope",
     "build_time_body",
     "parse_auth_ok",
