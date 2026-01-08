@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Final
+
 import aiohttp
 
 from .errors import (
@@ -9,6 +11,9 @@ from .errors import (
     TrestleResponseError,
     TrestleTimeout,
 )
+
+# Sentinel value to explicitly request no authentication
+_NO_AUTH: Final = object()
 
 
 class TrestleHttpClient:
@@ -30,22 +35,55 @@ class TrestleHttpClient:
     def _url(self, path: str) -> str:
         return f"http://{self._host}:{self._port}{path}"
 
-    def _auth_headers(self, secret: str | None = None) -> dict[str, str]:
-        token = secret or self._secret
+    def _auth_headers(self, secret: str | None | object = None) -> dict[str, str]:
+        # Check for explicit no-auth sentinel
+        if secret is _NO_AUTH:
+            return {}
+        token = secret if secret is not None else self._secret
         if not token:
             return {}
         return {"Authorization": f"Bearer {token}"}
 
-    async def fetch_device_id(self) -> str | None:
-        """Fetch device-provided unique ID from /api/info endpoint."""
+    async def fetch_device_id(
+        self,
+        *,
+        retry_without_auth: bool = True,
+        _secret_override: str | None | object = None,
+    ) -> str | None:
+        """Fetch device-provided unique ID from /api/info endpoint.
+
+        Per ICD Section 3.1, after pairing the endpoint requires Bearer token
+        authentication. Before pairing, it must allow unauthenticated access.
+
+        Args:
+            retry_without_auth: If True and 401 received, retry without auth
+                to detect unpaired device state.
+            _secret_override: Internal parameter for retry logic.
+
+        Returns:
+            Device ID string, or None if request failed.
+        """
         url = self._url("/api/info")
-        headers = self._auth_headers()
+        # Use override if provided, otherwise use instance secret
+        if _secret_override is not None:
+            headers = self._auth_headers(_secret_override)
+        else:
+            headers = self._auth_headers()
+
         try:
             async with self._session.get(
                 url,
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=5),
             ) as resp:
+                # ICD 3.1: After pairing, device MUST return 401 if token missing/invalid
+                if resp.status == 401 and self._secret and retry_without_auth:
+                    # Device rejected auth - may be unpaired or secret invalid
+                    # Try again without auth to detect unpaired state
+                    return await self.fetch_device_id(
+                        retry_without_auth=False, _secret_override=_NO_AUTH
+                    )
+
                 if resp.status != 200:
                     return None
                 data = await resp.json()
