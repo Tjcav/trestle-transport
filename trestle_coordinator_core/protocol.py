@@ -87,11 +87,13 @@ def parse_auth_ok(message: dict[str, Any]) -> tuple[int, ...]:
 
     Devices expect the coordinator to advertise supported protocol versions
     during authentication so they can negotiate prior to capability exchange.
+
+    Raises ValueError if coordinator_protocol_versions is missing or invalid.
     """
 
     versions = message.get("coordinator_protocol_versions")
     if versions is None:
-        return ()
+        raise ValueError("coordinator_protocol_versions field is required in auth_ok")
     if not isinstance(versions, Iterable) or isinstance(versions, (str, bytes)):
         raise ValueError("coordinator_protocol_versions must be an iterable")
     return _normalize_protocol_versions(versions)
@@ -113,6 +115,26 @@ def build_auth_ok(
         msg_id=msg_id,
         timestamp_ms=timestamp_ms,
         body={"coordinator_protocol_versions": list(normalized)},
+    )
+
+
+def build_auth_confirmed(
+    *,
+    device_id: str,
+    msg_id: str | None = None,
+    timestamp_ms: int | None = None,
+) -> dict[str, Any]:
+    """Construct an auth_confirmed frame (ICD 5.4).
+
+    Coordinator sends this after successfully validating device's auth_ok.
+    Device must receive this before transitioning to authenticated state.
+    """
+    return build_envelope(
+        device_id=device_id,
+        msg_type="auth_confirmed",
+        msg_id=msg_id,
+        timestamp_ms=timestamp_ms,
+        body={},
     )
 
 
