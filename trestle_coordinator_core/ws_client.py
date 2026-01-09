@@ -97,7 +97,7 @@ class TrestleWsClient:
                     )
                     continue
 
-                if isinstance(msg, bytes):  # type: ignore[misc]
+                if isinstance(msg, bytes):
                     continue
 
                 # Extract frame type and data from non-string/bytes messages (e.g., aiohttp WSMessage)
@@ -106,9 +106,9 @@ class TrestleWsClient:
 
                 # Lazy import to avoid hard dependency on aiohttp at runtime
                 try:
-                    from aiohttp import WSMsgType  # type: ignore
+                    from aiohttp import WSMsgType
                 except Exception:  # pragma: no cover - fallback when aiohttp missing
-                    WSMsgType = None  # type: ignore
+                    WSMsgType = None
 
                 if WSMsgType is not None and frame_type == WSMsgType.TEXT:
                     yield TrestleWsMessage(
@@ -141,4 +141,5 @@ class TrestleWsClient:
             return message.data
         if not isinstance(message.data, str):
             raise ValueError("WebSocket message payload is not text")
-        return json.loads(message.data)
+        result: dict[str, Any] = json.loads(message.data)
+        return result

@@ -90,16 +90,33 @@ skips = ["B101", "B110"]  # Allow assert in tests, allow try-except-pass (task c
 
 [tool.mypy]
 python_version = "3.11"
-warn_return_any = false
+strict = true
+warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
 check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
 ignore_missing_imports = true
 exclude = [
     "trestle_pb2\\.py$",
     "trestle_pb2\\.pyi$",
+    "tests",
 ]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
 
 [[tool.mypy.overrides]]
 module = "trestle_coordinator_core.trestle_pb2"

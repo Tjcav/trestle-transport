@@ -93,7 +93,10 @@ class TrestleHttpClient:
                 if resp.status != 200:
                     return None
                 data = await resp.json()
-                return data.get("id") or data.get("unique_id") or data.get("device_id")
+                result: str | None = (
+                    data.get("id") or data.get("unique_id") or data.get("device_id")
+                )
+                return result
         except TimeoutError as err:
             raise TrestleTimeout("Device info request timed out") from err
         except aiohttp.ClientError as err:

@@ -116,8 +116,8 @@ class TrestleSession:
         # Connection state
         self._ws: TrestleWsClient | None = None
         self._connection_state: str = "disconnected"
-        self._listen_task: asyncio.Task | None = None
-        self._reconnect_task: asyncio.Task | None = None
+        self._listen_task: asyncio.Task[None] | None = None
+        self._reconnect_task: asyncio.Task[None] | None = None
         self._retry_attempts = 0
         self._shutdown_requested = False
 
@@ -131,7 +131,7 @@ class TrestleSession:
         self._pending_delta_acks: dict[str, _PendingDeltaAck] = {}
 
         # Keepalive
-        self._ping_task: asyncio.Task | None = None
+        self._ping_task: asyncio.Task[None] | None = None
         self._last_pong_time: float | None = None
         self._missed_pong_windows = 0
         self._ping_id = 0
