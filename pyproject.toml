@@ -14,11 +14,25 @@ authors = [
 ]
 keywords = ["trestle", "coordinator", "transport", "websocket", "home-assistant"]
 classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
   "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Home Automation",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://github.com/tjcav/trestle-transport"
+Documentation = "https://github.com/tjcav/trestle-spec"
+Repository = "https://github.com/tjcav/trestle-transport"
+Issues = "https://github.com/tjcav/trestle-transport/issues"
+Changelog = "https://github.com/tjcav/trestle-transport/blob/main/CHANGELOG.md"
 dependencies = [
   "websockets>=14.0",
 ]
@@ -29,3 +43,60 @@ packages = ["trestle_coordinator_core"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+
+[tool.coverage.run]
+source = ["trestle_coordinator_core"]
+omit = [
+    "*/tests/*",
+    "*/trestle_pb2.py",
+    "*/trestle_pb2.pyi",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101", "B110"]  # Allow assert in tests, allow try-except-pass (task cancellation)
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = false
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+exclude = [
+    "trestle_pb2\\.py$",
+    "trestle_pb2\\.pyi$",
+]
+
+[[tool.mypy.overrides]]
+module = "trestle_coordinator_core.trestle_pb2"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "trestle_coordinator_core.protobuf_util"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true

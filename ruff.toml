@@ -1,0 +1,54 @@
+# Ruff configuration for trestle-coordinator-core
+# Comprehensive static analysis for library code
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort - import ordering
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade - modern Python syntax
+    "D",    # pydocstyle - docstring conventions
+    "G",    # flake8-logging-format
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # Ruff-specific rules
+    "S",    # flake8-bandit - security checks
+    "ASYNC", # flake8-async - async/await best practices
+    "PT",   # flake8-pytest-style
+]
+
+ignore = [
+    "E501",   # line too long (formatter handles this)
+    "D203",   # 1 blank line required before class docstring (conflicts with D211)
+    "D213",   # Multi-line docstring summary should start at second line (conflicts with D212)
+    "D107",   # Missing docstring in __init__ (too verbose)
+    "D105",   # Missing docstring in magic method (too verbose)
+    "B008",   # do not perform function calls in argument defaults
+    "C901",   # too complex (address incrementally)
+    "SIM105", # Use contextlib.suppress - task cancellation exceptions are intentional
+    "S110",   # try-except-pass without logging - intentional for task cancellation
+    "TC002",  # Move third-party imports into type-checking block (overly pedantic)
+    "TC003",  # Move standard library imports into type-checking block (overly pedantic)
+    "UP038",  # Use X | Y in isinstance - not always more readable
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/*" = ["D", "S101", "S106", "TC003"]  # No docstrings, allow assert, hardcoded passwords OK in tests, imports can be runtime
+"trestle_coordinator_core/trestle_pb2.py" = ["ALL"]  # Generated protobuf code
+"trestle_coordinator_core/trestle_pb2.pyi" = ["ALL"]  # Generated protobuf stubs
+"trestle_coordinator_core/ws.py" = ["ASYNC109"]  # timeout parameter is intentional
+"trestle_coordinator_core/ws_client.py" = ["ASYNC109"]  # timeout parameter is intentional
+
+[lint.pydocstyle]
+convention = "google"  # Use Google-style docstrings
+
+[format]
+quote-style = "double"
+indent-style = "space"
