@@ -12,6 +12,7 @@ from .errors import (
 )
 from .http import TrestleHttpClient
 from .protocol import (
+    build_auth_confirmed,
     build_auth_invalid,
     build_auth_ok,
     build_envelope,
@@ -34,6 +35,7 @@ __all__ = [
     "TrestleWsClient",
     "TrestleWsMessage",
     "TrestleWsMessageType",
+    "build_auth_confirmed",
     "build_auth_invalid",
     "build_auth_ok",
     "build_envelope",
