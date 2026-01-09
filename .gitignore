@@ -1,3 +1,32 @@
 __pycache__/
 *.py[cod]
 *.$py.class
+
+# Test and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.testmondata
+.testmondata-journal
+.testmondata-shm
+.testmondata-wal
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+*.so
+*.dylib

@@ -55,9 +55,17 @@ repos:
   # Validate pytest tests
   - repo: local
     hooks:
+      - id: smart-test-selection
+        name: Run tests for changed code (testmon)
+        entry: bash -c 'cd /workspaces/trestle-transport && python -m pytest --testmon --no-cov --tb=short -q -x || ([ $? -eq 5 ] && echo "No tests selected (no code changes detected)" && exit 0)'
+        language: system
+        pass_filenames: false
+        files: \.(py)$
+        exclude: ^(docs/|trestle_coordinator_core/trestle_pb2\.)
+
       - id: pytest-check
         name: Run pytest tests
-        entry: bash -c 'cd /workspaces/trestle-transport && source .venv/bin/activate && pytest tests/ -v'
+        entry: bash -c 'cd /workspaces/trestle-transport && python -m pytest tests/ -v'
         language: system
         pass_filenames: false
         always_run: false
