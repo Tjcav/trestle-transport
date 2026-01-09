@@ -1,6 +1,4 @@
-"""WebSocket client wrapper for RockBridge Trestle.
-
-"""
+"""WebSocket client wrapper for RockBridge Trestle."""
 
 from __future__ import annotations
 
@@ -68,6 +66,19 @@ class TrestleWsClient:
             raise TrestleConnectionError("WebSocket is not connected")
         await self._ws.send(json.dumps(payload))
 
+    async def send_bytes(self, data: bytes) -> None:
+        """Send binary data to the websocket.
+
+        Args:
+            data: Binary data to send
+
+        Raises:
+            TrestleConnectionError: If not connected
+        """
+        if self._ws is None:
+            raise TrestleConnectionError("WebSocket is not connected")
+        await self._ws.send(data)
+
     def __aiter__(self) -> AsyncIterator[TrestleWsMessage]:
         if self._ws is None:
             raise TrestleConnectionError("WebSocket is not connected")
@@ -86,13 +97,12 @@ class TrestleWsClient:
                     )
                     continue
 
-                if isinstance(msg, bytes):
+                if isinstance(msg, bytes):  # type: ignore[misc]
                     continue
 
+                # Extract frame type and data from non-string/bytes messages (e.g., aiohttp WSMessage)
                 frame_type = getattr(msg, "type", None)
                 frame_data = getattr(msg, "data", None)
-                if frame_type is None:
-                    continue
 
                 # Lazy import to avoid hard dependency on aiohttp at runtime
                 try:

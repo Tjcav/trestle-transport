@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
 
 import websockets
 from websockets.asyncio.client import ClientConnection
@@ -18,9 +17,6 @@ from .errors import (
     TrestleHandshakeError,
     TrestleTimeout,
 )
-
-if TYPE_CHECKING:
-    pass
 
 
 async def connect_websocket(

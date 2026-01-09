@@ -21,7 +21,7 @@ import logging
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -38,6 +38,14 @@ from .protocol import (
     parse_auth_ok,
 )
 from .ws_client import TrestleWsClient, TrestleWsMessageType
+
+# Protocol Buffer support
+try:
+    from . import protobuf_util
+
+    protobuf_available = True
+except ImportError:
+    protobuf_available = False
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -425,7 +433,7 @@ class TrestleSession:
         frame = build_envelope(
             device_id=self.device_id,
             msg_type="time",
-            body=build_time_body(now=datetime.now(tz=timezone.utc)),
+            body=build_time_body(now=datetime.now(tz=UTC)),
         )
 
         try:
@@ -844,3 +852,87 @@ class TrestleSession:
             return True
         except TrestleClientError:
             return False
+
+    # -------------------------------------------------------------------------
+    # Protocol Buffer Support (NEW)
+    # -------------------------------------------------------------------------
+
+    async def send_protobuf_message(self, message: Any) -> bool:
+        """Send protobuf message as binary WebSocket frame.
+
+        Args:
+            message: Protobuf Message object
+
+        Returns:
+            True if sent successfully
+
+        Note: Requires PROTOBUF_AVAILABLE to be True
+        """
+        if not protobuf_available:
+            _LOGGER.error("Protobuf not available, cannot send protobuf message")
+            return False
+
+        if not self._ws or not self.is_connected:
+            _LOGGER.warning("[%s] Cannot send protobuf: not connected", self.device_id)
+            return False
+
+        try:
+            # Serialize message to bytes
+            data = protobuf_util.serialize_message(message)
+
+            # Send as binary WebSocket frame
+            await self._ws.send_bytes(data)
+
+            msg_type = protobuf_util.get_message_type(message)
+            _LOGGER.debug(
+                "[%s] Sent protobuf message: %s (%d bytes)",
+                self.device_id,
+                msg_type,
+                len(data),
+            )
+            return True
+
+        except Exception as err:
+            _LOGGER.error(
+                "[%s] Failed to send protobuf message: %s",
+                self.device_id,
+                err,
+            )
+            return False
+
+    async def send_protobuf_snapshot(
+        self,
+        profile_id: str,
+        profile_version: str,
+        fused_facts: dict[str, list[dict[str, Any]]],
+        binding_states: list[dict[str, Any]],
+    ) -> bool:
+        """Send snapshot using protobuf format.
+
+        Args:
+            profile_id: Active profile identifier
+            profile_version: Profile version
+            fused_facts: Map of domain -> facts list
+            binding_states: List of binding states
+
+        Returns:
+            True if sent successfully
+        """
+        if not protobuf_available:
+            return False
+
+        self._delta_seq += 1
+
+        message = protobuf_util.build_snapshot_message(
+            profile_id=profile_id,
+            profile_version=profile_version,
+            fused_facts=fused_facts,
+            binding_states=binding_states,
+            sequence_number=self._delta_seq,
+        )
+
+        result = await self.send_protobuf_message(message)
+        if result:
+            self._snapshot_sent = True
+
+        return result

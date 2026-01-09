@@ -1,14 +1,16 @@
 """Protocol helpers for RockBridge Trestle transport frames.
 
 Owned by the Trestle Coordinator Core team.
+
+This module provides JSON message building for legacy protocol support.
 """
 
 from __future__ import annotations
 
-from datetime import datetime
 import time
 import uuid
 from collections.abc import Iterable, Sequence
+from datetime import datetime
 from typing import Any
 
 
@@ -55,7 +57,6 @@ def build_time_body(
         Body dict containing epoch seconds, UTC offset seconds, and optional
         timezone identifier.
     """
-
     epoch = int(now.timestamp())
     offset = now.utcoffset()
     body: dict[str, Any] = {"epoch": epoch, "utc_offset": 0}
@@ -71,7 +72,6 @@ def build_time_body(
 
 def _normalize_protocol_versions(versions: Iterable[Any]) -> tuple[int, ...]:
     """Normalize protocol version iterables into canonical integer tuples."""
-
     normalized: list[int] = []
     for version in versions:
         if isinstance(version, bool) or not isinstance(version, int):
@@ -90,7 +90,6 @@ def parse_auth_ok(message: dict[str, Any]) -> tuple[int, ...]:
 
     Raises ValueError if coordinator_protocol_versions is missing or invalid.
     """
-
     versions = message.get("coordinator_protocol_versions")
     if versions is None:
         raise ValueError("coordinator_protocol_versions field is required in auth_ok")
@@ -107,7 +106,6 @@ def build_auth_ok(
     timestamp_ms: int | None = None,
 ) -> dict[str, Any]:
     """Construct an auth_ok frame declaring coordinator protocol versions."""
-
     normalized = _normalize_protocol_versions(coordinator_versions)
     return build_envelope(
         device_id=device_id,
@@ -146,7 +144,6 @@ def build_auth_invalid(
     timestamp_ms: int | None = None,
 ) -> dict[str, Any]:
     """Construct an auth_invalid frame notifying the device of failure."""
-
     if not message:
         raise ValueError("message is required for auth_invalid frames")
     return build_envelope(

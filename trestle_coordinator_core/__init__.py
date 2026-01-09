@@ -3,6 +3,8 @@
 Owned by the Trestle Coordinator Core team.
 """
 
+__version__ = "0.1.0"
+
 from .errors import (
     TrestleClientError,
     TrestleConnectionError,
@@ -37,11 +39,12 @@ __all__ = [
     "TrestleWsClient",
     "TrestleWsMessage",
     "TrestleWsMessageType",
+    "__version__",
     "build_auth_confirmed",
     "build_auth_invalid",
     "build_auth_ok",
     "build_envelope",
     "build_time_body",
-    "parse_auth_ok",
     "connect_websocket",
+    "parse_auth_ok",
 ]

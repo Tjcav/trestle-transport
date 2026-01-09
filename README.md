@@ -1,5 +1,10 @@
 # trestle-coordinator-core
 
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/tjcav/trestle-transport/workflows/CI/badge.svg)](https://github.com/tjcav/trestle-transport/actions)
+[![codecov](https://codecov.io/gh/tjcav/trestle-transport/branch/main/graph/badge.svg)](https://codecov.io/gh/tjcav/trestle-transport)
+
 Shared coordinator foundation for Trestle implementations. Provides protocol transport, session management, and message builders.
 
 This package provides:
