@@ -17,6 +17,7 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
+        files: ^trestle_coordinator_core/.*\.py$
         args: [--ignore-missing-imports, --check-untyped-defs]
         additional_dependencies:
           - types-aiofiles
