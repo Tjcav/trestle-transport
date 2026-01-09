@@ -19,6 +19,7 @@ from .protocol import (
     build_time_body,
     parse_auth_ok,
 )
+from .session import TrestleSession
 from .ws import connect_websocket
 from .ws_client import TrestleWsClient, TrestleWsMessage, TrestleWsMessageType
 
@@ -31,6 +32,7 @@ __all__ = [
     "TrestleHandshakeError",
     "TrestleHttpClient",
     "TrestleResponseError",
+    "TrestleSession",
     "TrestleTimeout",
     "TrestleWsClient",
     "TrestleWsMessage",
