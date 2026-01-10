@@ -9,8 +9,8 @@ with Trestle devices. It handles:
 - Keepalive/reconnect logic
 - Message routing
 
-Ecosystem adapters (trestle-ha, trestle-knx, etc.) MUST use this API and
-MUST NOT talk directly to devices.
+Ecosystem adapters (trestle-ha, trestle-knx, etc.) SHALL use this API and
+SHALL NOT talk directly to devices.
 """
 
 from __future__ import annotations

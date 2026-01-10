@@ -103,6 +103,9 @@ class TrestleWsClient:
             yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
         except Exception:
             yield TrestleWsMessage(type=TrestleWsMessageType.ERROR)
+        else:
+            # Normal iteration completion means the peer closed gracefully.
+            yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
 
     @staticmethod
     def _normalize_message(msg: Any) -> TrestleWsMessage | None:

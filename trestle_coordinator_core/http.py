@@ -56,7 +56,7 @@ class TrestleHttpClient:
         authentication. Before pairing, it must allow unauthenticated access.
 
         Per ICD Section 3.2, when encountering 401 with stored secret (orphan
-        panel scenario), coordinator MUST attempt unpair to recover.
+        panel scenario), coordinator SHALL attempt unpair to recover.
 
         Args:
             retry_without_auth: If True and 401 received, retry without auth
@@ -79,7 +79,7 @@ class TrestleHttpClient:
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=5),
             ) as resp:
-                # ICD 3.1: After pairing, device MUST return 401 if token missing/invalid
+                # ICD 3.1: After pairing, device SHALL return 401 if token missing/invalid
                 if resp.status == 401 and self._secret and retry_without_auth:
                     # Device rejected auth - orphan panel scenario (ICD 3.2)
                     # Unpair device to force back to unpaired state
@@ -126,7 +126,7 @@ class TrestleHttpClient:
         Per ICD Section 3.2, this endpoint solves orphan panel scenarios where
         the device has a stored secret but coordinator has lost it.
 
-        The endpoint MUST:
+        The endpoint SHALL:
         - Accept unauthenticated POST requests
         - Clear stored pairing secret from device NVS
         - Return HTTP 200 with body "OK" on success
@@ -143,7 +143,7 @@ class TrestleHttpClient:
                 url,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
-                # ICD 3.2.1: Device MUST return 200 with body "OK"
+                # ICD 3.2.1: Device SHALL return 200 with body "OK"
                 if resp.status != 200:
                     raise TrestleResponseError(
                         resp.status,
