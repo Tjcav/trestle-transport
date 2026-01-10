@@ -22,8 +22,11 @@ import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
+
+if TYPE_CHECKING:
+    from . import protobuf_util
 
 from .errors import (
     TrestleClientError,
@@ -39,12 +42,13 @@ from .protocol import (
 )
 from .ws_client import TrestleWsClient, TrestleWsMessageType
 
-# Protocol Buffer support
+# Protocol Buffer support - import at module level for type checking
 try:
     from . import protobuf_util
 
     protobuf_available = True
 except ImportError:
+    protobuf_util = None  # type: ignore[assignment]
     protobuf_available = False
 
 _LOGGER = logging.getLogger(__name__)
@@ -645,7 +649,7 @@ class TrestleSession:
             return
 
         # Build state response
-        states = []
+        states: list[dict[str, Any]] = []
         for binding_id in binding_ids:
             try:
                 value = self._state_request_callback(binding_id)
@@ -877,6 +881,10 @@ class TrestleSession:
             return False
 
         try:
+            # Import available at runtime, checked by protobuf_available guard
+            if not protobuf_util:
+                _LOGGER.error("Protobuf module not available")
+                return False
             # Serialize message to bytes
             data = protobuf_util.serialize_message(message)
 
@@ -918,7 +926,7 @@ class TrestleSession:
         Returns:
             True if sent successfully
         """
-        if not protobuf_available:
+        if not protobuf_available or not protobuf_util:
             return False
 
         self._delta_seq += 1

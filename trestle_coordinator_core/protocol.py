@@ -11,7 +11,12 @@ import time
 import uuid
 from collections.abc import Iterable, Sequence
 from datetime import datetime
-from typing import Any
+from typing import Any, TypeGuard
+
+
+def _is_protocol_iterable(value: Any) -> TypeGuard[Iterable[Any]]:
+    """Return True when value is a non-string iterable."""
+    return not isinstance(value, (str, bytes)) and isinstance(value, Iterable)
 
 
 def build_envelope(
@@ -70,15 +75,40 @@ def build_time_body(
     return body
 
 
-def _normalize_protocol_versions(versions: Iterable[Any]) -> tuple[int, ...]:
-    """Normalize protocol version iterables into canonical integer tuples."""
-    normalized: list[int] = []
-    for version in versions:
-        if isinstance(version, bool) or not isinstance(version, int):
-            raise ValueError("Protocol versions must be integers")
-        normalized.append(version)
-    if not normalized:
+def _normalize_protocol_versions(versions: Any) -> tuple[int, ...]:
+    """Normalize protocol version iterables into canonical integer tuples.
+
+    Args:
+        versions: Value to validate and normalize (should be iterable of ints)
+
+    Returns:
+        Tuple of validated integer protocol versions
+
+    Raises:
+        ValueError: If versions is not iterable or contains non-integers
+    """
+    # Validate it's iterable but not string/bytes
+    if isinstance(versions, (str, bytes)):
+        raise ValueError("Protocol versions must not be string or bytes")
+    if not _is_protocol_iterable(versions):
+        raise ValueError("Protocol versions must be an iterable")
+
+    # Convert to list for validation
+    versions_list: list[Any] = list(versions)
+    if not versions_list:
         raise ValueError("At least one protocol version is required")
+
+    # Validate each element is an integer (not bool which is subclass of int)
+    normalized: list[int] = []
+    for idx, version in enumerate(versions_list):
+        if isinstance(version, bool):
+            raise ValueError(f"Protocol version at index {idx} is bool, must be int")
+        if not isinstance(version, int):
+            raise ValueError(
+                f"Protocol version at index {idx} must be integer, got {type(version).__name__}"
+            )
+        normalized.append(version)
+
     return tuple(normalized)
 
 
@@ -90,12 +120,12 @@ def parse_auth_ok(message: dict[str, Any]) -> tuple[int, ...]:
 
     Raises ValueError if coordinator_protocol_versions is missing or invalid.
     """
-    versions = message.get("coordinator_protocol_versions")
-    if versions is None:
+    versions_raw = message.get("coordinator_protocol_versions")
+    if versions_raw is None:
         raise ValueError("coordinator_protocol_versions field is required in auth_ok")
-    if not isinstance(versions, Iterable) or isinstance(versions, (str, bytes)):
-        raise ValueError("coordinator_protocol_versions must be an iterable")
-    return _normalize_protocol_versions(versions)
+
+    # Let _normalize_protocol_versions do full validation
+    return _normalize_protocol_versions(versions_raw)
 
 
 def build_auth_ok(

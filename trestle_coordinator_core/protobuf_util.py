@@ -45,7 +45,11 @@ def struct_to_dict(struct: struct_pb2.Struct) -> dict[str, Any]:
     Returns:
         Python dictionary
     """
-    return dict(struct)
+    # Convert using protobuf's field access, not dict() constructor
+    result: dict[str, Any] = {}
+    for key in struct.fields:
+        result[key] = struct.fields[key]
+    return result
 
 
 def current_timestamp() -> timestamp_pb2.Timestamp:
@@ -79,7 +83,7 @@ def build_snapshot_message(
         Protobuf Message with snapshot payload
     """
     # Convert fused_facts to protobuf map
-    fused_map = {}
+    fused_map: dict[str, trestle_pb2.DomainData] = {}
     for domain_name, facts_list in fused_facts.items():
         # Wrap facts list in DomainData
         domain_data = trestle_pb2.DomainData(data=dict_to_struct({"facts": facts_list}))

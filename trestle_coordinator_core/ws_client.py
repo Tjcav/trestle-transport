@@ -90,43 +90,16 @@ class TrestleWsClient:
 
         try:
             async for msg in self._ws:
-                if isinstance(msg, str):
-                    yield TrestleWsMessage(
-                        type=TrestleWsMessageType.TEXT,
-                        data=msg,
-                    )
-                    continue
-
+                # Handle binary frames (websockets library) - skip them fast
                 if isinstance(msg, bytes):
                     continue
 
-                # Extract frame type and data from non-string/bytes messages (e.g., aiohttp WSMessage)
-                frame_type = getattr(msg, "type", None)
-                frame_data = getattr(msg, "data", None)
-
-                # Lazy import to avoid hard dependency on aiohttp at runtime
-                try:
-                    from aiohttp import WSMsgType
-                except Exception:  # pragma: no cover - fallback when aiohttp missing
-                    WSMsgType = None
-
-                if WSMsgType is not None and frame_type == WSMsgType.TEXT:
-                    yield TrestleWsMessage(
-                        type=TrestleWsMessageType.TEXT,
-                        data=frame_data,
-                    )
-                    continue
-
-                if WSMsgType is not None and frame_type in {
-                    WSMsgType.CLOSED,
-                    WSMsgType.CLOSE,
-                }:
-                    yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
-                    continue
-
-                if WSMsgType is not None and frame_type == WSMsgType.ERROR:
-                    yield TrestleWsMessage(type=TrestleWsMessageType.ERROR)
-                    continue
+                # Handle text messages (websockets library)
+                # After filtering bytes, msg is always str from ClientConnection
+                yield TrestleWsMessage(
+                    type=TrestleWsMessageType.TEXT,
+                    data=msg,
+                )
         except ConnectionClosed:
             yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
         except Exception:
@@ -137,9 +110,7 @@ class TrestleWsClient:
         """Decode a TEXT message payload into JSON."""
         if message.type is not TrestleWsMessageType.TEXT:
             raise TrestleClientError("Only TEXT messages can be decoded")
-        if isinstance(message.data, dict):
-            return message.data
         if not isinstance(message.data, str):
-            raise ValueError("WebSocket message payload is not text")
+            raise TrestleClientError("Message data is not a string")
         result: dict[str, Any] = json.loads(message.data)
         return result

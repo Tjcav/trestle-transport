@@ -78,7 +78,7 @@ class TestUnpairDevice:
 
         with pytest.raises(
             TrestleResponseError,
-            match="Unpair failed - device must return 200 OK per ICD 3.2",
+            match=r"Unpair failed - device must return 200 OK per ICD 3\.2",
         ):
             await client.unpair_device()
 

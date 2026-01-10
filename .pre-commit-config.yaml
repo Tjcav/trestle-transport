@@ -25,6 +25,18 @@ repos:
           - websockets
         exclude: ^trestle_coordinator_core/trestle_pb2\.pyi?$
 
+  # Type checking with Pyright (matches VS Code Pylance)
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.390
+    hooks:
+      - id: pyright
+        files: ^trestle_coordinator_core/.*\.py$
+        exclude: ^trestle_coordinator_core/trestle_pb2\.pyi?$
+        additional_dependencies:
+          - websockets
+          - aiohttp
+          - types-protobuf
+
   # Standard pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

@@ -28,5 +28,10 @@ ENV/
 *.egg-info/
 dist/
 build/
+
+# SonarQube
+.scannerwork/
+.sonar/
+.sonarlint/
 *.so
 *.dylib

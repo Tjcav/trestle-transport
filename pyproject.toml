@@ -26,6 +26,9 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
+dependencies = [
+  "websockets>=14.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/tjcav/trestle-transport"
@@ -33,9 +36,6 @@ Documentation = "https://github.com/tjcav/trestle-spec"
 Repository = "https://github.com/tjcav/trestle-transport"
 Issues = "https://github.com/tjcav/trestle-transport/issues"
 Changelog = "https://github.com/tjcav/trestle-transport/blob/main/CHANGELOG.md"
-dependencies = [
-  "websockets>=14.0",
-]
 
 [project.optional-dependencies]
 dev = [

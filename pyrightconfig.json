@@ -1,7 +1,8 @@
 {
-  "typeCheckingMode": "basic",
+  "typeCheckingMode": "strict",
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": false,
   "reportUnusedImport": true,
   "reportUnusedVariable": true,
   "reportDuplicateImport": true,
@@ -10,11 +11,16 @@
   "reportUnnecessaryComparison": true,
   "reportConstantRedefinition": true,
   "pythonVersion": "3.11",
+  "include": [
+    "trestle_coordinator_core"
+  ],
   "exclude": [
     "**/.venv",
     "**/node_modules",
     "**/__pycache__",
     ".git",
+    "tests",
+    "tests/**",
     "trestle_coordinator_core/trestle_pb2.py",
     "trestle_coordinator_core/trestle_pb2.pyi"
   ]
