@@ -1,0 +1,22 @@
+{
+  "name": "Trestle Coordinator Core",
+  "repo": "trestle-transport",
+  "description": "Coordinator core library providing canonical transport, session, and protocol helpers",
+  "subsystems": [
+    "coordinator_core",
+    "transport_adapter",
+    "ecosystem_adapter_sdk"
+  ],
+  "ecosystems": [],
+  "device_types": [],
+  "interfaces": [
+    "trestle_transport_api",
+    "trestle_protocol_buffers",
+    "coordinator_session_api"
+  ],
+  "dependencies_consumed": [
+    "python-asyncio",
+    "protobuf",
+    "trestle-spec"
+  ]
+}

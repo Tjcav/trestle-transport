@@ -56,3 +56,14 @@ def create_mock_response(
     response.__aexit__.return_value = None
 
     return response
+
+
+REQ_MARKER_DOC = (
+    "req(id, description=None): Trace requirement coverage for behavioral tests"
+)
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register custom markers for strict marker validation."""
+
+    config.addinivalue_line("markers", REQ_MARKER_DOC)

@@ -64,6 +64,9 @@ addopts = [
     "--strict-markers",
     "--tb=short",
 ]
+markers = [
+  "req(id, description): Traceability marker for behavior/ICD requirements",
+]
 
 [tool.coverage.run]
 source = ["trestle_coordinator_core"]
