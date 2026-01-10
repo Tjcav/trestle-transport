@@ -13,6 +13,11 @@ from websockets.exceptions import ConnectionClosed
 from .errors import TrestleClientError, TrestleConnectionError
 from .ws import connect_websocket
 
+try:  # pragma: no cover - optional dependency for normalization
+    from aiohttp import WSMsgType
+except ImportError:  # pragma: no cover
+    WSMsgType = None
+
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
@@ -90,20 +95,56 @@ class TrestleWsClient:
 
         try:
             async for msg in self._ws:
-                # Handle binary frames (websockets library) - skip them fast
-                if isinstance(msg, bytes):
+                normalized: TrestleWsMessage | None = self._normalize_message(msg)
+                if normalized is None:
                     continue
-
-                # Handle text messages (websockets library)
-                # After filtering bytes, msg is always str from ClientConnection
-                yield TrestleWsMessage(
-                    type=TrestleWsMessageType.TEXT,
-                    data=msg,
-                )
+                yield normalized
         except ConnectionClosed:
             yield TrestleWsMessage(type=TrestleWsMessageType.CLOSED)
         except Exception:
             yield TrestleWsMessage(type=TrestleWsMessageType.ERROR)
+
+    @staticmethod
+    def _normalize_message(msg: Any) -> TrestleWsMessage | None:
+        """Normalize backend-specific frames into TrestleWsMessage."""
+        if isinstance(msg, bytes):
+            return None
+        if isinstance(msg, str):
+            return TrestleWsMessage(TrestleWsMessageType.TEXT, msg)
+
+        msg_type = getattr(msg, "type", None)
+        data = getattr(msg, "data", None)
+
+        if WSMsgType is not None and msg_type is not None:
+            normalized_type: TrestleWsMessageType | None = (
+                TrestleWsClient._map_aiohttp_type(msg_type)
+            )
+            if normalized_type is None:
+                return None
+            return TrestleWsMessage(normalized_type, data)
+
+        # Fallback: treat unknown objects as text via their string repr
+        return TrestleWsMessage(TrestleWsMessageType.TEXT, str(msg))
+
+    @staticmethod
+    def _map_aiohttp_type(msg_type: Any) -> TrestleWsMessageType | None:
+        """Map aiohttp WSMsgType enums to internal message types."""
+        if WSMsgType is None:
+            return None
+
+        if msg_type is WSMsgType.TEXT:
+            return TrestleWsMessageType.TEXT
+
+        if msg_type is WSMsgType.BINARY:
+            return None
+
+        if msg_type in {WSMsgType.CLOSE, WSMsgType.CLOSING, WSMsgType.CLOSED}:
+            return TrestleWsMessageType.CLOSED
+
+        if msg_type is WSMsgType.ERROR:
+            return TrestleWsMessageType.ERROR
+
+        return None
 
     @staticmethod
     def decode_json(message: TrestleWsMessage) -> dict[str, Any]:
