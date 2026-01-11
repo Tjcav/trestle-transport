@@ -6,6 +6,8 @@ Subpackages:
 - decision: Pure decision logic (attention, selection, realization, frames)
 - transport: IO, wire protocol, network handling
 - adapter: Ecosystem adapter boundary (HA, etc.)
+- profile: Profile loading and domain registration (Slice 8d)
+- policy_engine: Policy evaluation (Slice 8d)
 """
 
 __version__ = "0.1.0"
@@ -66,6 +68,30 @@ from .errors import (
     TrestleResponseError,
     TrestleTimeout,
 )
+from .policy_engine import (
+    DomainState,
+    EvaluationContext,
+    Importance,
+    IntentCandidate,
+    evaluate_all_states,
+    evaluate_domain_update,
+)
+from .profile import (
+    DomainNotFoundError,
+    DomainSchema,
+    DomainScope,
+    LoadedPolicy,
+    LoadedProfile,
+    PolicyClassification,
+    PolicyCondition,
+    PolicyEffects,
+    PolicyRule,
+    ProfileLoadError,
+    QuietHours,
+    load_domain,
+    load_policy,
+    load_profile,
+)
 from .transport import (
     TrestleHttpClient,
     TrestleSession,
@@ -112,12 +138,27 @@ __all__ = [
     "DecisionTrace",
     "DeviceCapabilities",
     "DeviceContext",
+    "DomainNotFoundError",
+    "DomainSchema",
+    "DomainScope",
+    "DomainState",
     "EcosystemAdapter",
     "EscalationReason",
+    "EvaluationContext",
     "FactSink",
     "FactType",
+    "Importance",
+    "IntentCandidate",
     "IntentType",
+    "LoadedPolicy",
+    "LoadedProfile",
     "OutputChannel",
+    "PolicyClassification",
+    "PolicyCondition",
+    "PolicyEffects",
+    "PolicyRule",
+    "ProfileLoadError",
+    "QuietHours",
     "RealizationHints",
     "RealizationIntent",
     "RealizationMode",
@@ -143,6 +184,11 @@ __all__ = [
     "compute_attention_level",
     "compute_attention_level_from_device",
     "connect_websocket",
+    "evaluate_all_states",
+    "evaluate_domain_update",
+    "load_domain",
+    "load_policy",
+    "load_profile",
     "parse_auth_ok",
     "produce_alert_frame",
     "produce_realization_frame",
