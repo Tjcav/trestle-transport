@@ -1,10 +1,48 @@
 """Core shared helpers for Trestle coordinators.
 
 Owned by the Trestle Coordinator Core team.
+
+Subpackages:
+- decision: Pure decision logic (attention, selection, realization, frames)
+- transport: IO, wire protocol, network handling
 """
 
 __version__ = "0.1.0"
 
+from .decision import (
+    INTERRUPT_THRESHOLD,
+    LIFE_SAFETY_THRESHOLD,
+    PRIORITY_CRITICAL,
+    PRIORITY_GLANCE,
+    PRIORITY_INTERRUPT,
+    PRIORITY_NOTIFY,
+    REALIZATION_PROFILES,
+    AlertAction,
+    AlertFrame,
+    AlertTarget,
+    AttentionContext,
+    AttentionLevel,
+    DecisionContext,
+    DecisionTrace,
+    DeviceCapabilities,
+    DeviceContext,
+    EscalationReason,
+    OutputChannel,
+    RealizationHints,
+    RealizationIntent,
+    RealizationMode,
+    RealizationResult,
+    SelectionResult,
+    SuppressionReason,
+    compute_attention_level,
+    compute_attention_level_from_device,
+    produce_alert_frame,
+    produce_realization_frame,
+    realize_alert,
+    realize_attention,
+    select_device,
+    trace_decision,
+)
 from .errors import (
     TrestleClientError,
     TrestleConnectionError,
@@ -12,23 +50,49 @@ from .errors import (
     TrestleResponseError,
     TrestleTimeout,
 )
-from .http import TrestleHttpClient
-from .protocol import (
+from .transport import (
+    TrestleHttpClient,
+    TrestleSession,
+    TrestleWsClient,
+    TrestleWsMessage,
+    TrestleWsMessageType,
     build_auth_confirmed,
     build_auth_invalid,
     build_auth_ok,
     build_envelope,
     build_time_body,
+    connect_websocket,
     parse_auth_ok,
 )
-from .session import TrestleSession
-from .ws import connect_websocket
-from .ws_client import TrestleWsClient, TrestleWsMessage, TrestleWsMessageType
 
 SUPPORTED_PROTOCOL_VERSIONS: tuple[int, ...] = (1,)
 
 __all__ = [
+    "INTERRUPT_THRESHOLD",
+    "LIFE_SAFETY_THRESHOLD",
+    "PRIORITY_CRITICAL",
+    "PRIORITY_GLANCE",
+    "PRIORITY_INTERRUPT",
+    "PRIORITY_NOTIFY",
+    "REALIZATION_PROFILES",
     "SUPPORTED_PROTOCOL_VERSIONS",
+    "AlertAction",
+    "AlertFrame",
+    "AlertTarget",
+    "AttentionContext",
+    "AttentionLevel",
+    "DecisionContext",
+    "DecisionTrace",
+    "DeviceCapabilities",
+    "DeviceContext",
+    "EscalationReason",
+    "OutputChannel",
+    "RealizationHints",
+    "RealizationIntent",
+    "RealizationMode",
+    "RealizationResult",
+    "SelectionResult",
+    "SuppressionReason",
     "TrestleClientError",
     "TrestleConnectionError",
     "TrestleHandshakeError",
@@ -45,6 +109,14 @@ __all__ = [
     "build_auth_ok",
     "build_envelope",
     "build_time_body",
+    "compute_attention_level",
+    "compute_attention_level_from_device",
     "connect_websocket",
     "parse_auth_ok",
+    "produce_alert_frame",
+    "produce_realization_frame",
+    "realize_alert",
+    "realize_attention",
+    "select_device",
+    "trace_decision",
 ]

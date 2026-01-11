@@ -28,7 +28,7 @@ from uuid import uuid4
 if TYPE_CHECKING:
     from . import protobuf_util
 
-from .errors import (
+from ..errors import (
     TrestleClientError,
     TrestleConnectionError,
     TrestleHandshakeError,

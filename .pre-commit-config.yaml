@@ -27,9 +27,11 @@ repos:
 
   # Type checking with Pyright (matches VS Code Pylance)
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.390
+    rev: v1.1.408
     hooks:
       - id: pyright
+        args: [trestle_coordinator_core]
+        pass_filenames: false
         files: ^trestle_coordinator_core/.*\.py$
         exclude: ^trestle_coordinator_core/trestle_pb2\.pyi?$
         additional_dependencies:

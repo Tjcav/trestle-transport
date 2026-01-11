@@ -12,7 +12,7 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
-from .errors import (
+from ..errors import (
     TrestleConnectionError,
     TrestleHandshakeError,
     TrestleTimeout,

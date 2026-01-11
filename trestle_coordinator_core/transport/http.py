@@ -6,7 +6,7 @@ from typing import Final
 
 import aiohttp
 
-from .errors import (
+from ..errors import (
     TrestleConnectionError,
     TrestleResponseError,
     TrestleTimeout,

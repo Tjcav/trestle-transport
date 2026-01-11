@@ -21,7 +21,7 @@
     ".git",
     "tests",
     "tests/**",
-    "trestle_coordinator_core/trestle_pb2.py",
-    "trestle_coordinator_core/trestle_pb2.pyi"
+    "**/trestle_pb2.py",
+    "**/trestle_pb2.pyi"
   ]
 }

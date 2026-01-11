@@ -54,7 +54,8 @@ async def test_session_creation():
 async def test_session_connect(mock_ws_client):
     """Test session connection."""
     with patch(
-        "trestle_coordinator_core.session.TrestleWsClient", return_value=mock_ws_client
+        "trestle_coordinator_core.transport.session.TrestleWsClient",
+        return_value=mock_ws_client,
     ):
         session = TrestleSession(
             device_id="test123",

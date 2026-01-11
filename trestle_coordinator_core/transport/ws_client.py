@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 from websockets.asyncio.client import ClientConnection
 from websockets.exceptions import ConnectionClosed
 
-from .errors import TrestleClientError, TrestleConnectionError
+from ..errors import TrestleClientError, TrestleConnectionError
 from .ws import connect_websocket
 
 try:  # pragma: no cover - optional dependency for normalization
