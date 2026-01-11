@@ -361,3 +361,119 @@ class TestOutcomeTypes:
         assert outcome.type == OutcomeType.ALERT_DELIVERED
         assert outcome.delivery.delivered
         assert len(outcome.delivery.target_panels) == 2
+
+
+class TestDecisionLineage:
+    """Tests for decision ID and lineage."""
+
+    def test_decision_id(self) -> None:
+        """Test decision_id for stable referencing."""
+        trigger = Trigger(type=TriggerType.STATE_CHANGE, domain="security")
+        snapshot = DomainSnapshot(domains=[], snapshot_time=datetime.now())
+
+        trace = DecisionTrace(
+            trace_id="unique-trace-id",
+            timestamp=datetime.now(),
+            profile_id="test-profile",
+            trigger=trigger,
+            domain_snapshot=snapshot,
+            policy_trace=PolicyEvaluationTrace(),
+            outcome=DecisionOutcome(type=OutcomeType.NO_ACTION),
+            decision_id="home-123:security:front_door:1705357742123",
+        )
+
+        assert trace.decision_id == "home-123:security:front_door:1705357742123"
+        assert trace.parent_decision_id is None
+
+    def test_decision_lineage(self) -> None:
+        """Test parent_decision_id for escalation/retry chaining."""
+        trigger = Trigger(type=TriggerType.STATE_CHANGE, domain="security")
+        snapshot = DomainSnapshot(domains=[], snapshot_time=datetime.now())
+
+        # Original decision
+        original = DecisionTrace(
+            trace_id="trace-1",
+            timestamp=datetime.now(),
+            profile_id="test-profile",
+            trigger=trigger,
+            domain_snapshot=snapshot,
+            policy_trace=PolicyEvaluationTrace(),
+            outcome=DecisionOutcome(type=OutcomeType.ALERT_DELIVERED),
+            decision_id="home-123:security:escalation:001",
+        )
+
+        # Escalated decision referencing parent
+        escalated = DecisionTrace(
+            trace_id="trace-2",
+            timestamp=datetime.now(),
+            profile_id="test-profile",
+            trigger=trigger,
+            domain_snapshot=snapshot,
+            policy_trace=PolicyEvaluationTrace(),
+            outcome=DecisionOutcome(type=OutcomeType.ALERT_DELIVERED),
+            decision_id="home-123:security:escalation:002",
+            parent_decision_id="home-123:security:escalation:001",
+        )
+
+        assert escalated.parent_decision_id == original.decision_id
+
+
+class TestFailedConditions:
+    """Tests for explicit no-match reasons."""
+
+    def test_failed_conditions_on_skipped_rule(self) -> None:
+        """Test failed_conditions captures why a rule didn't fire."""
+        rule = RuleEvaluation(
+            rule_id="door-open-welcome-home",
+            result=RuleResult.SKIPPED,
+            when_clause=ConditionCheck(
+                condition_type="when",
+                domain="security",
+                expected="door_open",
+                actual="door_open",
+                satisfied=True,
+            ),
+            additional_conditions=[
+                ConditionCheck(
+                    condition_type="condition",
+                    domain="occupancy",
+                    expected="home",
+                    actual="away",
+                    satisfied=False,
+                )
+            ],
+            failed_conditions=["occupancy == home"],
+            skip_reason="condition not met: occupancy != home",
+        )
+
+        assert rule.result == RuleResult.SKIPPED
+        assert len(rule.failed_conditions) == 1
+        assert rule.failed_conditions[0] == "occupancy == home"
+
+    def test_empty_failed_conditions_on_matched_rule(self) -> None:
+        """Test failed_conditions is empty when rule matches."""
+        rule = RuleEvaluation(
+            rule_id="door-while-away",
+            result=RuleResult.MATCHED,
+            failed_conditions=[],  # All conditions passed
+            classification=IntentClassification(importance="critical"),
+        )
+
+        assert rule.result == RuleResult.MATCHED
+        assert len(rule.failed_conditions) == 0
+
+    def test_multiple_failed_conditions(self) -> None:
+        """Test multiple conditions can fail."""
+        rule = RuleEvaluation(
+            rule_id="complex-rule",
+            result=RuleResult.SKIPPED,
+            failed_conditions=[
+                "occupancy == home",
+                "time_of_day == evening",
+                "media_activity == playing",
+            ],
+            skip_reason="multiple conditions not met",
+        )
+
+        assert len(rule.failed_conditions) == 3
+        assert "media_activity == playing" in rule.failed_conditions

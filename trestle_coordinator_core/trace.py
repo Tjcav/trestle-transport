@@ -129,13 +129,20 @@ class IntentClassification:
 
 @dataclass
 class RuleEvaluation:
-    """Evaluation trace for a single rule."""
+    """Evaluation trace for a single rule.
+
+    failed_conditions captures explicit no-match reasons, critical for
+    answering "why didn't this fire?" - e.g., ["media_activity == playing"]
+    """
 
     rule_id: str
     result: RuleResult
     when_clause: ConditionCheck | None = None
     additional_conditions: list[ConditionCheck] = field(default_factory=lambda: [])
     suppress_if_checks: list[ConditionCheck] = field(default_factory=lambda: [])
+    failed_conditions: list[str] = field(
+        default_factory=lambda: []
+    )  # Explicit no-match reasons
     classification: IntentClassification | None = None
     skip_reason: str | None = None
     suppress_reason: str | None = None
@@ -236,6 +243,11 @@ class DecisionTrace:
     - What the world looked like at decision time
     - How each rule was evaluated
     - What outcome was reached and why
+
+    decision_id is a stable, referenceable ID for:
+    - Panel interactions ("acknowledge decision X")
+    - Chaining (escalation, retries via parent_decision_id)
+    - Cross-home aggregation and learning
     """
 
     trace_id: str
@@ -245,6 +257,8 @@ class DecisionTrace:
     domain_snapshot: DomainSnapshot
     policy_trace: PolicyEvaluationTrace
     outcome: DecisionOutcome
+    decision_id: str | None = None  # Stable decision ID (deterministic)
+    parent_decision_id: str | None = None  # Lineage: parent decision (escalation/retry)
     profile_version: str | None = None
     home_id: str | None = None
     metrics: PerformanceMetrics | None = None
