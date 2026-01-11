@@ -5,10 +5,26 @@ Owned by the Trestle Coordinator Core team.
 Subpackages:
 - decision: Pure decision logic (attention, selection, realization, frames)
 - transport: IO, wire protocol, network handling
+- adapter: Ecosystem adapter boundary (HA, etc.)
 """
 
 __version__ = "0.1.0"
 
+from .adapter import (
+    FACT_SCHEMAS,
+    INTENT_SCHEMAS,
+    AdapterConnectionError,
+    AdapterError,
+    AdapterHealth,
+    AdapterIntentError,
+    AdapterTranslationError,
+    CanonicalFact,
+    CanonicalIntent,
+    EcosystemAdapter,
+    FactSink,
+    FactType,
+    IntentType,
+)
 from .decision import (
     INTERRUPT_THRESHOLD,
     LIFE_SAFETY_THRESHOLD,
@@ -68,6 +84,10 @@ from .transport import (
 SUPPORTED_PROTOCOL_VERSIONS: tuple[int, ...] = (1,)
 
 __all__ = [
+    # Adapter boundary (Slice 7d)
+    "FACT_SCHEMAS",
+    "INTENT_SCHEMAS",
+    # Decision logic
     "INTERRUPT_THRESHOLD",
     "LIFE_SAFETY_THRESHOLD",
     "PRIORITY_CRITICAL",
@@ -76,16 +96,27 @@ __all__ = [
     "PRIORITY_NOTIFY",
     "REALIZATION_PROFILES",
     "SUPPORTED_PROTOCOL_VERSIONS",
+    "AdapterConnectionError",
+    "AdapterError",
+    "AdapterHealth",
+    "AdapterIntentError",
+    "AdapterTranslationError",
     "AlertAction",
     "AlertFrame",
     "AlertTarget",
     "AttentionContext",
     "AttentionLevel",
+    "CanonicalFact",
+    "CanonicalIntent",
     "DecisionContext",
     "DecisionTrace",
     "DeviceCapabilities",
     "DeviceContext",
+    "EcosystemAdapter",
     "EscalationReason",
+    "FactSink",
+    "FactType",
+    "IntentType",
     "OutputChannel",
     "RealizationHints",
     "RealizationIntent",
