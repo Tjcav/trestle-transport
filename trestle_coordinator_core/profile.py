@@ -194,10 +194,8 @@ def load_domain(domains_dir: Path, domain_name: str) -> DomainSchema:
     scope_str = data.get("scope", "house")
     scope = DomainScope.PER_ROOM if scope_str == "per_room" else DomainScope.HOUSE
 
-    # Determine schema version - weather domain with forecast is v2
+    # Schema version comes from the domain file itself.
     schema_version = data.get("schema_version", 1)
-    if domain_name == "weather" and "weather_forecast" in data.get("outputs", {}):
-        schema_version = 2
 
     return DomainSchema(
         name=data.get("domain", domain_name),

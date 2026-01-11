@@ -61,11 +61,6 @@ from .decision import (
     select_device,
     trace_decision,
 )
-from .domains import (
-    WeatherCondition,
-    WeatherForecastEntry,
-    WeatherOutputs,
-)
 from .errors import (
     TrestleClientError,
     TrestleConnectionError,
@@ -180,9 +175,6 @@ __all__ = [
     "TrestleWsClient",
     "TrestleWsMessage",
     "TrestleWsMessageType",
-    "WeatherCondition",
-    "WeatherForecastEntry",
-    "WeatherOutputs",
     "__version__",
     "build_auth_confirmed",
     "build_auth_invalid",
