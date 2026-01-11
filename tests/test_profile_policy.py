@@ -78,7 +78,7 @@ class TestProfileLoading:
         profile = load_profile(home_runtime_dir)
 
         assert profile.profile_id == "home"
-        assert profile.profile_version == "1.0.0"
+        assert profile.profile_version == "1.1.0"
         assert profile.profile_name == "RockBridge Home"
 
     def test_all_nine_domains_registered(

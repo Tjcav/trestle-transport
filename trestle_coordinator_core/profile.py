@@ -33,13 +33,15 @@ class DomainSchema:
         states: Valid state values for this domain.
         events: Valid event types for this domain.
         outputs: Output field definitions.
+        schema_version: Domain schema version (default 1).
     """
 
     name: str
     scope: DomainScope
     states: tuple[str, ...] = ()
     events: tuple[str, ...] = ()
-    outputs: dict[str, str] = field(default_factory=lambda: {})
+    outputs: dict[str, Any] = field(default_factory=lambda: {})
+    schema_version: int = 1
 
 
 @dataclass(frozen=True)
@@ -192,12 +194,18 @@ def load_domain(domains_dir: Path, domain_name: str) -> DomainSchema:
     scope_str = data.get("scope", "house")
     scope = DomainScope.PER_ROOM if scope_str == "per_room" else DomainScope.HOUSE
 
+    # Determine schema version - weather domain with forecast is v2
+    schema_version = data.get("schema_version", 1)
+    if domain_name == "weather" and "weather_forecast" in data.get("outputs", {}):
+        schema_version = 2
+
     return DomainSchema(
         name=data.get("domain", domain_name),
         scope=scope,
         states=tuple(data.get("states", [])),
         events=tuple(data.get("events", [])),
         outputs=data.get("outputs", {}),
+        schema_version=schema_version,
     )
 
 
