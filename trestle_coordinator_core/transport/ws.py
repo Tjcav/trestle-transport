@@ -23,15 +23,23 @@ async def connect_websocket(
     host: str,
     port: int,
     *,
+    path: str = "/ws",
     ping_interval: int | None = 20,
     timeout: float = 15.0,
 ) -> ClientConnection:
-    """Connect to the RockBridge Trestle WebSocket endpoint.
+    """Connect to a WebSocket endpoint.
 
     Uses the websockets library which properly implements RFC 6455 frame masking.
     All client-to-server frames are automatically masked per the standard.
+
+    Args:
+        host: Target host
+        port: Target port
+        path: WebSocket path (default: /ws)
+        ping_interval: Interval for ping frames
+        timeout: Connection timeout
     """
-    ws_url = f"ws://{host}:{port}/ws"
+    ws_url = f"ws://{host}:{port}{path}"
     try:
         return await asyncio.wait_for(
             websockets.connect(

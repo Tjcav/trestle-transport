@@ -49,13 +49,23 @@ class TrestleWsClient:
         host: str,
         port: int,
         *,
+        path: str = "/ws",
         ping_interval: int = 20,
         timeout: float = 15.0,
     ) -> None:
-        """Connect to the device websocket."""
+        """Connect to a WebSocket endpoint.
+
+        Args:
+            host: Target host
+            port: Target port
+            path: WebSocket path (default: /ws)
+            ping_interval: Interval for ping frames
+            timeout: Connection timeout
+        """
         self._ws = await connect_websocket(
             host,
             port,
+            path=path,
             ping_interval=ping_interval,
             timeout=timeout,
         )
