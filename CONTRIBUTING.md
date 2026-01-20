@@ -5,12 +5,14 @@ Thank you for considering contributing to trestle-coordinator-core!
 ## Development Setup
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/tjcav/trestle-transport.git
    cd trestle-transport
    ```
 
 2. **Create a virtual environment:**
+
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -34,9 +36,15 @@ This project maintains high code quality standards:
 - **Security**: Bandit for security scanning
 - **Formatting**: Ruff formatter (auto-applied)
 
+### Central tooling standard
+
+This repo follows the centralized tooling standard. The authoritative pin is in [.trestle/standards.version](.trestle/standards.version).
+For orientation only, see https://github.com/tjcav/trestle-spec/tree/main/tooling.
+
 ## Development Workflow
 
 1. **Create a feature branch:**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -44,16 +52,19 @@ This project maintains high code quality standards:
 2. **Make your changes**
 
 3. **Run tests:**
+
    ```bash
    pytest tests/ -v --cov=trestle_coordinator_core
    ```
 
 4. **Run pre-commit checks:**
+
    ```bash
    pre-commit run --all-files
    ```
 
 5. **Commit your changes:**
+
    ```bash
    git add .
    git commit -m "feat: add your feature description"

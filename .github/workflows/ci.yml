@@ -7,6 +7,14 @@ on:
     branches: [main]
 
 jobs:
+  standards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate standards pin and drift
+        run: bash scripts/validate_standards.sh
+
   test:
     runs-on: ubuntu-latest
     strategy:

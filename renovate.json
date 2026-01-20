@@ -1,0 +1,27 @@
+{
+    "extends": [
+        "config:base"
+    ],
+    "regexManagers": [
+        {
+            "fileMatch": [
+                "^\\.trestle/standards\\.version$"
+            ],
+            "matchStrings": [
+                "(?<currentValue>main|v\\d+\\.\\d+\\.\\d+)"
+            ],
+            "datasourceTemplate": "github-tags",
+            "depNameTemplate": "tjcav/trestle-spec"
+        },
+        {
+            "fileMatch": [
+                "^\\.pre-commit-config\\.yaml$"
+            ],
+            "matchStrings": [
+                "rev: (?<currentValue>main|v\\d+\\.\\d+\\.\\d+)"
+            ],
+            "datasourceTemplate": "github-tags",
+            "depNameTemplate": "tjcav/trestle-spec"
+        }
+    ]
+}
