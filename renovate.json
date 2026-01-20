@@ -8,20 +8,11 @@
                 "^\\.trestle/standards\\.version$"
             ],
             "matchStrings": [
-                "(?<currentValue>main|v\\d+\\.\\d+\\.\\d+)"
+                "(?<currentValue>[0-9a-f]{7,40}|v\\d+\\.\\d+\\.\\d+)"
             ],
-            "datasourceTemplate": "github-tags",
-            "depNameTemplate": "tjcav/trestle-spec"
-        },
-        {
-            "fileMatch": [
-                "^\\.pre-commit-config\\.yaml$"
-            ],
-            "matchStrings": [
-                "rev: (?<currentValue>main|v\\d+\\.\\d+\\.\\d+)"
-            ],
-            "datasourceTemplate": "github-tags",
-            "depNameTemplate": "tjcav/trestle-spec"
+            "datasourceTemplate": "github-commits",
+            "depNameTemplate": "tjcav/trestle-spec",
+            "versioningTemplate": "loose"
         }
     ]
 }
