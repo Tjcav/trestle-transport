@@ -1,0 +1,36 @@
+name: Trestle Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    env:
+      WORKSPACE_DIR: ${{ github.workspace }}
+      BUILD_MODE: firmware
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Validate trestle configuration
+        run: .devcontainer/scripts/validate-config.sh
+
+      - name: Generate pre-commit configs
+        run: .devcontainer/scripts/generate-precommit.sh
+
+      - name: Ensure no generated drift
+        run: git diff --exit-code
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure

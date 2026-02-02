@@ -16,6 +16,7 @@ htmlcov/
 .venv/
 venv/
 ENV/
+.pre-commit-config.yaml
 
 # IDE
 .vscode/
